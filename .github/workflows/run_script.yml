@@ -21,5 +21,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
       
-      - name: Run marketdata.py
-        run: python marketdata.py
+      - name: Run delta.py
+        run: python delta.py
