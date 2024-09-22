@@ -23,3 +23,6 @@ jobs:
       
       - name: Run delta.py
         run: python delta.py
+
+      - name: Run cexflow.py
+        run: python cexflow.py
