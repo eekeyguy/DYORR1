@@ -26,3 +26,6 @@ jobs:
 
       - name: Run cexflow.py
         run: python cexflow.py
+
+      - name: Run dexflow.py
+        run: python dexflow.py  
