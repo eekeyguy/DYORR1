@@ -50,8 +50,8 @@ def upload_to_dune(csv_data, dune_api_key):
     dune_upload_url = "https://api.dune.com/api/v1/table/upload/csv"
     payload = json.dumps({
         "data": csv_data,
-        "description": "Token Volume Data",
-        "table_name": "token_volume_data",
+        "description": "Tokenn Volume Data",
+        "table_name": "tokenn_volume_data",
         "is_private": False
     })
     headers = {
