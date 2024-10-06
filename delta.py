@@ -61,52 +61,12 @@ def convert_to_csv(headers, rows):
     csv_file.close()
     return csv_data
 
-def create_dune_table(dune_api_key):
-    url = "https://api.dune.com/api/v1/table/create"
-    payload = {
-        "namespace": "eekeyguy_eth",
-        "table_name": "cryptooo_market_data",
-        "description": "Cryptocurrency market data including price and volume changes",
-        "schema": [
-            {"name": "date", "type": "timestamp"},
-            {"name": "symbol", "type": "string"},
-            {"name": "coin_id", "type": "string"},
-            {"name": "volume_change_7d", "type": "double", "nullable": True},
-            {"name": "price_change_7d", "type": "double", "nullable": True},
-            {"name": "volume_change_30d", "type": "double", "nullable": True},
-            {"name": "price_change_30d", "type": "double", "nullable": True},
-            {"name": "volume_change_60d", "type": "double", "nullable": True},
-            {"name": "price_change_60d", "type": "double", "nullable": True},
-            {"name": "volume_change_90d", "type": "double", "nullable": True},
-            {"name": "price_change_90d", "type": "double", "nullable": True}
-        ],
-        "is_private": False
-    }
-    headers = {
-        "X-DUNE-API-KEY": dune_api_key,
-        "Content-Type": "application/json"
-    }
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        print("Table created in Dune successfully")
-        return True
-    except requests.exceptions.RequestException as e:
-        if e.response.status_code == 409:
-            print("Table already exists, proceeding with data upload")
-            return True
-        else:
-            print(f"Error creating table in Dune: {str(e)}")
-            if hasattr(e, 'response') and e.response is not None:
-                print(f"Response content: {e.response.text}")
-            return False
-
 def upload_to_dune(csv_data, dune_api_key):
     dune_upload_url = "https://api.dune.com/api/v1/table/upload/csv"
     payload = json.dumps({
         "data": csv_data,
-        "description": "Deltaa Market Data",
-        "table_name": "deltta_market_data",
+        "description": "Crypto Market Data",
+        "table_name": "crypto_market_data",
         "is_private": False
     })
     headers = {
@@ -116,17 +76,14 @@ def upload_to_dune(csv_data, dune_api_key):
     try:
         response = requests.post(dune_upload_url, headers=headers, data=payload)
         response.raise_for_status()
-        print(f"Data uploaded to Dune successfully: {response.text}")
-        return True
-    except requests.exceptions.RequestException as e:
-        print(f"Error uploading to Dune: {str(e)}")
-        if hasattr(e, 'response') and e.response is not None:
-            print(f"Response content: {e.response.text}")
-        return False
+        return response.json()
+    except requests.exceptions.RequestException as err:
+        print(f"Error uploading to Dune: {err}")
+        return None
 
 def main():
     coingecko_api_key = "CG-ep7WBgRCGeDria6EeL1jkPot"  # Replace with your actual CoinGecko Pro API key
-    dune_api_key = "p0RZJpTPCUn9Cn7UTXEWDhalc53QzZXV"  # Your Dune API key
+    dune_api_key = "YOUR_DUNE_API_KEY"  # Replace with your actual Dune API key
 
     coins = {
         'ETH': 'ethereum', 'SOL': 'solana', 'TON': 'the-open-network', 'ADA': 'cardano',
@@ -176,18 +133,13 @@ def main():
     # Convert results to CSV
     csv_data = convert_to_csv(headers, all_rows)
     
-    # Print CSV data for debugging
-    print("CSV Data:")
-    print(csv_data)
-    
-    # Create table and upload to Dune
-    if create_dune_table(dune_api_key):
-        if upload_to_dune(csv_data, dune_api_key):
-            print("Data successfully uploaded to Dune")
-        else:
-            print("Failed to upload data to Dune")
+    # Upload to Dune
+    print("Uploading data to Dune...")
+    upload_result = upload_to_dune(csv_data, dune_api_key)
+    if upload_result:
+        print("Data successfully uploaded to Dune.")
     else:
-        print("Failed to create or verify table in Dune")
+        print("Failed to upload data to Dune.")
     
     # Write to local CSV file
     with open('crypto_market_data.csv', 'w', newline='') as csvfile:
