@@ -26,3 +26,6 @@ jobs:
 
       - name: Run dexflow.py
         run: python dexflow.py  
+
+      - name: Run delta.py
+        run: python delta.py   
